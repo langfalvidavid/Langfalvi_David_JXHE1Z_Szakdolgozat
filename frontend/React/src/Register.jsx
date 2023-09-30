@@ -9,21 +9,26 @@ const Register = () => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [password2, setPassword2] = useState('')
+    const [errorMsg, setErrorMsg] = useState('')
     const navigate = useNavigate()
     
     const handleSubmit = (e) =>{
         e.preventDefault()
         if(password !== password2) return null
         axios.post('http://localhost:3000/register', {email, username, password})
-        .then(result => {console.log(result)
-        navigate('/login')
+        .then(res => {console.log(res)
+            if(res.data === 'Felhasználó létrehozva'){
+                navigate('/login')
+            } else{
+                setErrorMsg(res.data)
+            }
         })
         .catch(err => console.log(err))
     }
-    
-    let valid = password === password2 ? 'text-transparent' : 'd-block text-danger text-center mt-3 mb-0'
 
         return (
+            <div style={{backgroundImage : "linear-gradient(to left bottom, #11b6f0, #00c1ea, #00cad5, #00d1b5, #08d48d)"}}>
+
             <div className='d-flex vh-100 w-50 m-auto border-danger align-items-center justify-content-center'>
                 
      <form onSubmit={handleSubmit} className='w-50 bg-dark needs-validation rounded-4 novalidate'>
@@ -43,13 +48,14 @@ const Register = () => {
 
     <div className='has-validation'>
         <input type='password' className='form-control text-center w-75 m-auto' id='password2' placeholder='Jelszó ismét' autoComplete='off' required onChange={(e) =>{setPassword2(e.target.value)}}></input>
-        <p className={valid}>A jelszavak nem egyeznek!</p>
+        <p className={errorMsg === '' && password === password2 ? 'text-transparent' : 'd-block text-danger text-center mt-3 mb-0' }>{(errorMsg === '') && (password !== password2) ? 'A jelszavak nem egyeznek!' : errorMsg}</p>
     </div> 
         <div className='text-center'>
-    <button type='submit' className='btn btn-info w-50 m-auto text-center rounded-4 text-dark mb-5'>Bejelentkezés</button>
+    <button type='submit' className='btn btn-info w-50 m-auto text-center rounded-4 text-dark mb-5'>Regisztráció</button>
         </div>
     
      </form>
+            </div>
             </div>
         );
 };
