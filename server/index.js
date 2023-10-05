@@ -12,13 +12,13 @@ const nodemailer = require('nodemailer');
 const app = express()
 app.use(express.json())
 app.use(cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://szakdolgozat-a53f.onrender.com:5173"],
     methods: ["GET", "POST"],
     credentials: true
 }))
 app.use(cookieParser())
 
-mongoose.connect("mongodb://127.0.0.1:27017/Szakdolgozat")
+mongoose.connect("mongodb+srv://langfalvidavid:<Championselect473>@szakdolgozat.9v1ecom.mongodb.net/?retryWrites=true&w=majority/Szakdolgozat")
 
 
 const verifyUser = (req, res, next) =>{

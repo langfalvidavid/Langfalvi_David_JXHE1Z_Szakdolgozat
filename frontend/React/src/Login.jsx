@@ -16,7 +16,7 @@ axios.defaults.withCredentials = true
 
 const handleSubmit = (e) =>{
     e.preventDefault()
-    axios.post('http://localhost:3000/login', {username, password})
+    axios.post('https://szakdolgozat-a53f.onrender.com:3000/login', {username, password})
     .then(res => {console.log(res)
         if(res.data === 'Sikeres bejelentkezés!'){
         navigate('/')
