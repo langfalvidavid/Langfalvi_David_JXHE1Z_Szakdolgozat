@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
 const app = express()
 app.use(express.json())
 app.use(cors({
-    origin: ["https://szakdoga-7jv83xv7d-langfalvi-davids-projects.vercel.app"],
+    origin: ["https://szakdoga-frontend.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true
 }))
