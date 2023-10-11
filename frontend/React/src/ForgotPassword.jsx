@@ -13,7 +13,7 @@ const [response, setResponse] = useState('')
 
 const handleSubmit = (e) =>{
     e.preventDefault()
-    axios.post('https://szakdolgozat-a53f.onrender.com/forgot-password', {email})
+    axios.post('szakdoga-six.vercel.app/forgot-password', {email})
     .then(res => {console.log(res)
         if(res.data === 'Email elküldve'){
             setResponse(res.data)
