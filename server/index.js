@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   })
 
 app.use(cors({
-    origin: ["szakdoga-frontend.vercel.app"],
+    origin: ["https://szakdoga-frontend.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true
 }))
