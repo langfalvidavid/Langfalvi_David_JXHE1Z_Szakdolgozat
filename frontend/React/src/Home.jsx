@@ -8,7 +8,7 @@ const Home = () => {
     axios.defaults.withCredentials = true
     
     useEffect(()=>{
-        axios.get("szakdoga-backend-v646m0ibi-langfalvi-davids-projects.vercel.app")
+        axios.get("szakdoga-backend-nwvqfrigu-langfalvi-davids-projects.vercel.app")
         .then(res => {console.log(res)
         if(res.data !== 'Sikeres bejelentkezés!'){
             navigate('/login')
