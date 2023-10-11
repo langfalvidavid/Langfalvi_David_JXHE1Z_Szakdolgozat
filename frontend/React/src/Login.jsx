@@ -16,7 +16,7 @@ axios.defaults.withCredentials = true
 
 const handleSubmit = (e) =>{
     e.preventDefault()
-    axios.post('szakdoga-backend-nwvqfrigu-langfalvi-davids-projects.vercel.app/login', {username, password})
+    axios.post('szakdoga-backend.vercel.app/login', {username, password})
     .then(res => {console.log(res)
         if(res.data === 'Sikeres bejelentkezés!'){
         navigate('/')

@@ -15,7 +15,7 @@ const Register = () => {
     const handleSubmit = (e) =>{
         e.preventDefault()
         if(password !== password2) return null
-        axios.post('szakdoga-backend-nwvqfrigu-langfalvi-davids-projects.vercel.app/register', {email, username, password})
+        axios.post('szakdoga-backend.vercel.app/register', {email, username, password})
         .then(res => {console.log(res)
             if(res.data === 'Felhasználó létrehozva'){
                 navigate('/login')
