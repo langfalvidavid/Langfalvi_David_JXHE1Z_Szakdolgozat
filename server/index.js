@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
 const app = express()
 app.use(express.json())
 app.use(cors({
-    origin: ["szakdoga-frontend.vercel.app"],
+    origin: ["https://rainbow-tartufo-1b5ea9.netlify.app"],
     methods: ["GET", "POST"],
     credentials: true
 }))
