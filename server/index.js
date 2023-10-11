@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   })
 
 app.use(cors({
-    origin: ["https://rainbow-tartufo-1b5ea9.netlify.app"],
+    origin: ["szakdoga-frontend.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true
 }))
