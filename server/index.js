@@ -5,11 +5,11 @@ const UserModel = require('./models/User')
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 const nodemailer = require('nodemailer');
-require('dotenv').config()
+//require('dotenv').config()
 
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
-  }
+//if (process.env.NODE_ENV !== 'production') {
+//  require('dotenv').config();
+//  }
 
 const app = express()
 app.use(express.json())
@@ -28,7 +28,7 @@ app.use(cors({
 }))
 app.use(cookieParser())
 
-mongoose.connect(process.env.MONGODB)
+mongoose.connect('mongodb+srv://langfalvidavid:Championselect473@cluster0.cqjcuab.mongodb.net/Szakdolgozat?retryWrites=true&w=majority')
 
 const verifyUser = (req, res, next) =>{
     const token = req.cookies.token
@@ -36,7 +36,7 @@ const verifyUser = (req, res, next) =>{
     if(token){
         return res.json('Sikertelen bejelentkezés!')
     } else{
-        jwt.verify(token, process.env.JWT_CONNECTION_STRING, (err, decoded) =>{
+        jwt.verify(token, 'langfalvi-david-szakdolgozat', (err, decoded) =>{
             if(err) return res.json('Hibás token!')
             next()
         })
@@ -77,7 +77,7 @@ app.post('/login', (req, res) =>{
     .then(user =>{
         if(user){
         if(user.password === password) {
-            const token = jwt.sign({username: user.username}, process.env.JWT_CONNECTION_STRING, {expiresIn:"1h"})
+            const token = jwt.sign({username: user.username}, 'langfalvi-david-szakdolgozat', {expiresIn:"1h"})
             res.cookie("token", token)
             res.json('Sikeres bejelentkezés!')
         } else{
@@ -101,8 +101,8 @@ app.post('/forgot-password', (req, res) =>{
 let transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.NODEMAILER_EMAIL,
-    pass: process.env.NODEMAILER_PASSWORD
+    user: 'szojatek.david.langfalvi@gmail.com',
+    pass: 'crxqdugfyzqwesth'
   }
 });
 
