@@ -22,9 +22,9 @@ app.use(express.json())
 //  })
 
 app.use(cors({
-    origin: "https://szakdoga-frontend.vercel.app",
+    origin: "https://szakdolgozat-frontend.onrender.com",
     //methods: ["GET", "POST"],
-    credentials: true
+    //credentials: true
 }))
 app.use(cookieParser())
 
