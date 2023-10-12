@@ -22,7 +22,7 @@ axios.defaults.withCredentials = true
             if(res.data === 'Felhasználó létrehozva'){
                 navigate('/login')
             } else{
-                setErrorMsg(res.data)
+                return res.data
             }
         })
         .catch(err => console.log(err))
