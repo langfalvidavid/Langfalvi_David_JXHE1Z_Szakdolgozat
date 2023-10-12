@@ -33,7 +33,7 @@ mongoose.connect(process.env.MONGODB)
 const verifyUser = (req, res, next) =>{
     const token = req.cookies.token
     console.log(token)
-    if(!token){
+    if(token){
         return res.json('Sikertelen bejelentkezés!')
     } else{
         jwt.verify(token, process.env.JWT_CONNECTION_STRING, (err, decoded) =>{
