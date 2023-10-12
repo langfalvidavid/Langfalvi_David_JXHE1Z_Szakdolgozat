@@ -22,7 +22,7 @@ app.use(express.json())
 //  })
 
 app.use(cors({
-    origin: "https://rainbow-tartufo-1b5ea9.netlify.app",
+    origin: "https://szakdolgozat-frontend.onrender.com",
     methods: ["GET", "POST"],
     credentials: true
 }))
