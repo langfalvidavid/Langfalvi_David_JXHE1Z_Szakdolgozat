@@ -14,15 +14,15 @@ if (process.env.NODE_ENV !== 'production') {
 const app = express()
 app.use(express.json())
 
-//app.use((req, res, next) => {
-//    res.setHeader("Access-Control-Allow-Origin", "*");
-//    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-//    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-//    next();
-//  })
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    next();
+  })
 
 app.use(cors({
-    origin: ["*"],
+    origin: "https://szakdoga-frontend.vercel.app",
     methods: ["GET", "POST"],
     credentials: true
 }))
