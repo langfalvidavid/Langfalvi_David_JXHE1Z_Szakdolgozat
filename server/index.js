@@ -22,9 +22,9 @@ app.use(express.json())
 //  })
 
 app.use(cors({
-    origin: "https://szakdolgozat-frontend.onrender.com",
-    methods: ["GET", "POST"],
-    credentials: true
+    origin: "*",
+    methods: ["GET", "POST"]
+   // credentials: true
 }))
 app.use(cookieParser())
 
