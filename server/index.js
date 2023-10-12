@@ -33,7 +33,7 @@ mongoose.connect('mongodb+srv://langfalvidavid:Championselect473@cluster0.cqjcua
 const verifyUser = (req, res, next) =>{
     const token = req.cookies.token
     console.log(token)
-    if(token){
+    if(!token){
         return res.json('Sikertelen bejelentkezés!')
     } else{
         jwt.verify(token, 'langfalvi-david-szakdolgozat', (err, decoded) =>{
