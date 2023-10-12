@@ -17,7 +17,7 @@ axios.defaults.withCredentials = true
     const handleSubmit = (e) =>{
         e.preventDefault()
         if(password !== password2) return null
-        axios.post('https://szakdoga-backend.vercel.app/register', {email, username, password})
+        axios.post('https://szakdolgozat-z4nt.onrender.com/register', {email, username, password})
         .then(res => {console.log(res)
             if(res.data === 'Felhasználó létrehozva'){
                 navigate('/login')
