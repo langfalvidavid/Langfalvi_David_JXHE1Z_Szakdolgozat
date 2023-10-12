@@ -23,8 +23,8 @@ app.use(express.json())
 
 app.use(cors({
     origin: "https://szakdoga-frontend.vercel.app",
-    methods: ["GET", "POST"]
-   // credentials: true
+    methods: ["GET", "POST"],
+    credentials: true
 }))
 app.use(cookieParser())
 
