@@ -11,6 +11,8 @@ const Register = () => {
     const [password2, setPassword2] = useState('')
     const [errorMsg, setErrorMsg] = useState('')
     const navigate = useNavigate()
+
+axios.defaults.withCredentials = true
     
     const handleSubmit = (e) =>{
         e.preventDefault()
