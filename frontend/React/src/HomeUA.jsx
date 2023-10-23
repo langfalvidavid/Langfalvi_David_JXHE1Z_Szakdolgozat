@@ -1,3 +1,5 @@
+//Home page unauthenticated
+
 import React, { useEffect } from 'react';
 import axios from 'axios';
 import {Link, useNavigate} from 'react-router-dom'
@@ -9,7 +11,11 @@ const Home = () => {
     
     useEffect(()=>{
         axios.get("https://szakdolgozat-z4nt.onrender.com")
-        .then(res => {console.log(res)})
+        .then(res => {console.log(res)
+        if(res.data !== 'Sikeres bejelentkezés!'){
+            navigate('/home')
+        }
+        })
         .catch(err => console.log(err))
     }, [])
     return (

@@ -4,6 +4,7 @@ import Login from './Login'
 import Home from './Home'
 import Register from './Register'
 import ForgotPassword from './ForgotPassword'
+import HomeUA from './HomeUA'
 
 
 function App() {
@@ -15,7 +16,8 @@ function App() {
      <BrowserRouter>
      <Routes>
 
-      <Route path='/' element={<Home/>}></Route>
+      <Route path='/' element={<HomeUA/>}></Route>
+      <Route path='/home' element={<Home/>}></Route>
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/register' element={<Register/>}></Route>
       <Route path='/forgot-password' element={<ForgotPassword/>}></Route>
