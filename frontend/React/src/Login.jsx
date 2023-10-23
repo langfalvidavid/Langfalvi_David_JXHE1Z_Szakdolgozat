@@ -19,7 +19,7 @@ const handleSubmit = (e) =>{
     axios.post('https://szakdolgozat-z4nt.onrender.com/login', {username, password})
     .then(res => {console.log(res)
         if(res.data === 'Sikeres bejelentkezés!'){
-        navigate('/')
+        navigate('/home')
 } else{setResponse(res.data)}
     })
 }
