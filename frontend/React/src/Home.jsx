@@ -8,7 +8,7 @@ const Home = () => {
     axios.defaults.withCredentials = true
     
     useEffect(()=>{
-        axios.get("https://szakdolgozat-z4nt.onrender.com/")
+        axios.get("https://szakdolgozat-z4nt.onrender.com")
         .then(res => {console.log(res)})
         .catch(err => console.log(err))
     }, [])
