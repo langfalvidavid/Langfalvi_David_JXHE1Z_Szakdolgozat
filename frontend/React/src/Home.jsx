@@ -4,8 +4,6 @@ import {Link, useNavigate} from 'react-router-dom'
 import Navbar from './Navbar';
 
 const Home = () => {
-    axios.defaults.withCredentials = true
-    
     
     return (
         
