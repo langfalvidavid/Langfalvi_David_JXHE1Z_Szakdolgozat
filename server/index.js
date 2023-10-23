@@ -22,7 +22,7 @@ app.use(express.json())
 //  })
 
 app.use(cors({
-    origin: "https://szakdolgozat-frontend.onrender.com",
+    origin: "https://szakdoga-zeta.vercel.app/",
     methods: ["GET", "POST"],
     credentials: true
 }))
