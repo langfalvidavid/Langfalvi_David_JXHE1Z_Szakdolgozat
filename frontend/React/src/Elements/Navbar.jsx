@@ -3,6 +3,16 @@ import {Link} from 'react-router-dom'
 
 export default function Navbar() {
  
+const HandleLogout = () =>{
+  axios.get("https://szakdoga-backend.vercel.app/logout")
+  .then(res => {
+    if(res.data === 'Sikeres kijelentkezés'){
+      location.reload(true)
+    } else{
+      return res.data
+    }
+  }).catch( err => console.log(err))
+}
 
   return (
     <>
@@ -33,12 +43,12 @@ export default function Navbar() {
               Profil
             </a>
             <ul className="dropdown-menu dropdown-menu-dark">
-              <li><Link className="dropdown-item mb-2" href="/leaderboard">Ranglista</Link></li>
-              <li><Link className="dropdown-item mb-2" href="/personal">Személyes</Link></li>
+              <li><Link className="dropdown-item mb-2" to="/leaderboard">Ranglista</Link></li>
+              <li><Link className="dropdown-item mb-2" to="/personal">Személyes</Link></li>
               <li>
                 <hr className="dropdown-divider"/>
               </li>
-              <li><Link className="dropdown-item text-danger" href="/">Kijelentkezés</Link></li>
+              <li><Link className="dropdown-item text-danger" to={'/logout'} onClick={HandleLogout}>Kijelentkezés</Link></li>
             </ul>
           </li>
         </ul>

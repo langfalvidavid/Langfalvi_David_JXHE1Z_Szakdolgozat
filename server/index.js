@@ -47,6 +47,11 @@ app.get('/', verifyUser, (req, res) =>{
     return res.json('Sikeres bejelentkezés!')
 })
 
+app.get('/logout', (req,res) =>{
+    res.clearCookie('token')
+    return res.json('Sikeres kijelentkezés')
+})
+
 app.post('/register', (req, res) =>{
     const {username, email} = req.body
 
