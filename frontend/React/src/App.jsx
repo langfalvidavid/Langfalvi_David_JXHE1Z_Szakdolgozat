@@ -1,10 +1,14 @@
 import React from 'react'
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
-import Login from './Login'
-import Home from './Home'
-import Register from './Register'
-import ForgotPassword from './ForgotPassword'
-import HomeUA from './HomeUA'
+import Login from './Routes/Login'
+import Home from './Routes/Home'
+import Register from './Routes/Register'
+import ForgotPassword from './Routes/ForgotPassword'
+import HomeUA from './Routes/HomeUA'
+import Leaderboard from './Routes/Leaderboard'
+import Personal from './Routes/Personal'
+import Contact from './Routes/Contact'
+import CreateRoom from './Routes/CreateRoom'
 
 
 function App() {
@@ -21,6 +25,10 @@ function App() {
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/register' element={<Register/>}></Route>
       <Route path='/forgot-password' element={<ForgotPassword/>}></Route>
+      <Route path='/leaderboard' element={<Leaderboard/>}></Route>
+      <Route path='/personal' element={<Personal/>}></Route>
+      <Route path='/contact' element={<Contact/>}></Route>
+      <Route path='/create-room' element={<CreateRoom/>}></Route>
      </Routes>
      </BrowserRouter>
     </>
