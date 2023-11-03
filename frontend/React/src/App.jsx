@@ -29,6 +29,8 @@ function App() {
       <Route path='/personal' element={<Personal/>}></Route>
       <Route path='/contact' element={<Contact/>}></Route>
       <Route path='/create-room' element={<CreateRoom/>}></Route>
+      <Route path='/logout' element={<HomeUA/>}></Route>
+
      </Routes>
      </BrowserRouter>
     </>
