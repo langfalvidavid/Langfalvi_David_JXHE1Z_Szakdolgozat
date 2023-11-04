@@ -78,7 +78,7 @@ app.post('/register', (req, res) =>{
 
 app.post('/login', (req, res) =>{
     const {username, password} = req.body
-    UserModel.findOneAndUpdate({username: username})
+    UserModel.findOne({username: username})
     .then(user =>{
         if(user){
         if(user.password === password) {

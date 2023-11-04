@@ -20,7 +20,9 @@ axios.defaults.withCredentials = true
         axios.post('https://szakdoga-backend.vercel.app/register', {email, username, password})
         .then(res => {console.log(res)
             if(res.data === 'Felhasználó létrehozva'){
-                navigate('/login')
+                setTimeout(() =>{
+                    navigate('/login')
+                },3000)
             } else{
                 return res.data
             }
