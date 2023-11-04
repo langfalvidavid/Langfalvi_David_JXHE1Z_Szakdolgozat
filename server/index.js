@@ -55,12 +55,12 @@ app.get('/logout', (req,res) =>{
 app.post('/register', (req, res) =>{
     const {username, email} = req.body
 
-    UserModel.findOneAndUpdate({email: email})
+    UserModel.findOne({email: email})
     .then(emailFound =>{
         if(emailFound){
             return res.json('Email cím foglalt')
         } else{
-            UserModel.findOneAndUpdate({username: username})
+            UserModel.findOne({username: username})
             .then(pwFound =>{
                 if(pwFound){
                     return res.json('Felhasználónév foglalt')
@@ -95,7 +95,7 @@ app.post('/login', (req, res) =>{
 
 app.post('/forgot-password', (req, res) =>{
     const {email} = req.body
-    UserModel.findOneAndUpdate({email: email})
+    UserModel.findOne({email: email})
     .then(user => {
         if(!user){
             return res.json('Nincs ilyen felhasználó')
