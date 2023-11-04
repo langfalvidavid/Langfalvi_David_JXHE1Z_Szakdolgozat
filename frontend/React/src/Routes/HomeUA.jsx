@@ -19,7 +19,7 @@ const Home = () => {
     useEffect(()=>{
         axios.get("https://szakdoga-backend.vercel.app")
         .then(res => {console.log(res)
-        if(res.data !== 'Sikeres bejelentkezés!'){
+        if(res.data === 'Sikeres bejelentkezés!'){
             navigate('/home')
         }
         })
