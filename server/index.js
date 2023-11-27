@@ -68,6 +68,12 @@ app.post('/register', (req, res) =>{
                     UserModel.create(req.body)
                     .then(users => res.json(users))
                     .catch(err => res.json(err))
+
+                    const to = `${user.email}`
+                    const subject = `${user.username}, jó szórakozást kívánunk!`
+                    const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`
+
+                    MailSend()
                     return res.json('Felhasználó létrehozva')
                 }
             })
@@ -101,32 +107,40 @@ app.post('/forgot-password', (req, res) =>{
             return res.json('Nincs ilyen felhasználó')
         }
         const token = jwt.sign({id: user._id}, "langfalvi-david-forgot-password", {expiresIn: "1h"})
-        
 
-let transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.NODEMAILER_EMAIL,
-    pass: process.env.NODEMAILER_PASSWORD
-  }
-});
+        const to = `${user.email}`
+        const subject = 'Elfelejtett jelszó'
+        const text = `A jelszava: ${user.password}`
 
-let mailOptions = {
-  from: 'Szojatek <szojatek.david.langfalvi@gmail.com>',
-  to: `${user.email}`,
-  subject: 'Elfelejtett jelszó',
-  text: `A jelszava: ${user.password}`
-};
+MailSend(to, subject, text)
 
-transporter.sendMail(mailOptions, function(error, info){
-  if (error) {
-    console.log(error);
-  } else {
-    return res.json('Email elküldve')
-  }
-});
     })
 })
+
+const MailSend = (to, subject, text) =>{
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.NODEMAILER_EMAIL,
+          pass: process.env.NODEMAILER_PASSWORD
+        }
+      });
+      
+      let mailOptions = {
+        from: 'Szojatek <szojatek.david.langfalvi@gmail.com>',
+        to: to,
+        subject: subject,
+        text: text
+      };
+      
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          return res.json('Email elküldve')
+        }
+      });
+}
 
 app.listen(3000, () =>{
 console.log('Server is running...')

@@ -32,6 +32,8 @@ const handleSubmit = (e) =>{
 
 
 return (
+    <div style={{backgroundImage : "linear-gradient(to left bottom, #11b6f0, #00c1ea, #00cad5, #00d1b5, #08d48d)"}}>
+
     <div className='d-flex vh-100 w-50 m-auto border-danger align-items-center justify-content-center'>
 <form onSubmit={handleSubmit} className='w-50 bg-dark needs-validation rounded-4 novalidate' >
 <h1 className='text-light w-100 text-center mt-3'>Elfelejtett jelszó</h1>
@@ -44,6 +46,7 @@ return (
         </div>
 
 </form>
+    </div>
     </div>
 );
 };
