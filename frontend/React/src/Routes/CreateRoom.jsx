@@ -61,10 +61,10 @@ import io from 'socket.io-client';
 const CreateRoom = () => {
     const [roomCode, setRoomCode] = useState('');
     const [invitationLink, setInvitationLink] = useState('');
-    const socket = io('https://szakdoga-backend.vercel.app'); // Csere a megfelelő szerver címére és portra
+    const socket = io('https://szakdoga-backend.vercel.app'); // A szerver címét és portját itt állíthatod be
 
     const createRoom = () => {
-        // Szerveroldali végpont hívása a szoba létrehozásához
+        // Szerveroldali végpont meghívása a szoba létrehozásához
         fetch('https://szakdoga-backend.vercel.app/create-room', {
             method: 'POST',
         })
@@ -74,7 +74,8 @@ const CreateRoom = () => {
             if (data.roomCode) {
                 setRoomCode(data.roomCode);
                 setInvitationLink(`${window.location.origin}/join/${data.roomCode}`);
-                socket.emit('joinRoom', data.roomCode); // Csatlakozás a létrehozott szobához
+                // Csatlakozás a létrehozott szobához a socket.io segítségével
+                socket.emit('joinRoom', data.roomCode);
             }
         })
         .catch(error => {
@@ -97,3 +98,4 @@ const CreateRoom = () => {
 };
 
 export default CreateRoom;
+
