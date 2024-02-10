@@ -12,7 +12,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const ChatComponent = () => {
+const CreateRoom = () => {
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
     const socket = io();
@@ -53,4 +53,4 @@ const ChatComponent = () => {
     );
 };
 
-export default ChatComponent;
+export default CreateRoom;
