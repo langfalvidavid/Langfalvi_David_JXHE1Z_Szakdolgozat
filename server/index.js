@@ -5,6 +5,11 @@ const UserModel = require('./models/User')
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 const nodemailer = require('nodemailer');
+const http = require('http');
+const socketIo = require('socket.io');
+
+const server = http.createServer(app);
+const io = socketIo(server);
 require('dotenv').config()
 
 if (process.env.NODE_ENV !== 'production') {
@@ -118,7 +123,7 @@ MailSend(to, subject, text)
 })
 
 const MailSend = (to, subject, text) =>{
-    let transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: process.env.NODEMAILER_EMAIL,
@@ -142,6 +147,68 @@ const MailSend = (to, subject, text) =>{
       });
 }
 
+
+
+// Szobák tárolására
+const rooms = {};
+
+io.on('connection', socket => {
+    console.log('Egy új kliens csatlakozott:', socket.id);
+
+    // Ha egy kliens csatlakozik egy szobához
+    socket.on('joinRoom', roomID => {
+        // Csatlakozás a megadott szobához
+        socket.join(roomID);
+        // Ha a szoba még nem létezik, létrehozzuk
+        if (!rooms[roomID]) {
+            rooms[roomID] = [];
+        }
+        // Hozzáadjuk a kliens socket ID-jét a szobához
+        rooms[roomID].push(socket.id);
+        // Elküldjük az összes szobában lévő kliensnek a szobában lévő kliensek listáját
+        io.to(roomID).emit('roomPlayers', rooms[roomID]);
+    });
+
+    // Küldjön meghívó linket az email címre
+    socket.on('sendInvitation', (roomID, email) => {
+        // A meghívó link összeállítása
+        const invitationLink = `https://szakdoga-zeta.vercel.app/room/${roomID}`;
+        
+        // A NodeMailer konfigurációja (a valós SMTP adatokkal cseréld ki)
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+        auth: {
+            user: process.env.NODEMAILER_EMAIL,
+            pass: process.env.NODEMAILER_PASSWORD
+          }
+        });
+        
+        // Az email üzenet konfigurációja
+        const mailOptions = {
+            from: 'Szojatek <szojatek.david.langfalvi@gmail.com>',
+            to: email,
+            subject: 'Meghívó a játékszobába',
+            text: `Kedves játékos! Itt van a meghívó link a játékszobához: ${invitationLink}`
+        };
+        
+        // Az email küldése
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Hiba történt az email küldése közben:', error);
+            } else {
+                console.log('Az email sikeresen elküldve:', info.response);
+            }
+        });
+    })
+});
+
+
 app.listen(3000, () =>{
 console.log('Server is running...')
 })
+
+
+
+
+
+
