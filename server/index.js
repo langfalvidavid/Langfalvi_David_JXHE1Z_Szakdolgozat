@@ -8,8 +8,7 @@ const nodemailer = require('nodemailer');
 const http = require('http');
 const socketIo = require('socket.io');
 
-const server = http.createServer(app);
-const io = socketIo(server);
+
 require('dotenv').config()
 
 if (process.env.NODE_ENV !== 'production') {
@@ -147,7 +146,8 @@ const MailSend = (to, subject, text) =>{
       });
 }
 
-
+const server = http.createServer(app);
+const io = socketIo(server);
 
 // Szobák tárolására
 const rooms = {};
