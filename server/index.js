@@ -339,7 +339,7 @@ const MailSend = (to, subject, text) => {
 }
 
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo('https://szakdoga-backend.vercel.app');
 
 const rooms = {};
 
