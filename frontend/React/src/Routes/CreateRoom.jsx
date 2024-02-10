@@ -61,7 +61,7 @@ import io from 'socket.io-client';
 const CreateRoom = () => {
     const [roomCode, setRoomCode] = useState('');
     const [invitationLink, setInvitationLink] = useState('');
-    const socket = io('https://szakdoga-zeta.vercel.app'); // Csere a megfelelő szerver címére és portra
+    const socket = io('https://szakdoga-zeta.vercel.app/create-room'); // Csere a megfelelő szerver címére és portra
 
     const createRoom = () => {
         const newRoomCode = generateRoomCode(); // Funkció, ami generál egy egyedi szobakódot
