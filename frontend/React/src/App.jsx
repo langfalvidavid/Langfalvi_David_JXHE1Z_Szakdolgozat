@@ -1,40 +1,38 @@
-import React from 'react'
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
-import Login from './Routes/Login'
-import Home from './Routes/Home'
-import Register from './Routes/Register'
-import ForgotPassword from './Routes/ForgotPassword'
-import HomeUA from './Routes/HomeUA'
-import Leaderboard from './Routes/Leaderboard'
-import Personal from './Routes/Personal'
-import Contact from './Routes/Contact'
-import CreateRoom from './Routes/CreateRoom'
-
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './Routes/Login';
+import Home from './Routes/Home';
+import Register from './Routes/Register';
+import ForgotPassword from './Routes/ForgotPassword';
+import HomeUA from './Routes/HomeUA';
+import Leaderboard from './Routes/Leaderboard';
+import Personal from './Routes/Personal';
+import Contact from './Routes/Contact';
+import CreateRoom from './Routes/CreateRoom';
+import JoinRoom from './Routes/JoinRoom'; // Új komponens a csatlakozáshoz
 
 function App() {
- 
-  const loggedIn = window.localStorage.getItem("loggedIn")
+  const loggedIn = window.localStorage.getItem('loggedIn');
 
   return (
     <>
-     <BrowserRouter>
-     <Routes>
-
-      <Route path='/' element={<HomeUA/>}></Route>
-      <Route path='/home' element={<Home/>}></Route>
-      <Route path='/login' element={<Login/>}></Route>
-      <Route path='/register' element={<Register/>}></Route>
-      <Route path='/forgot-password' element={<ForgotPassword/>}></Route>
-      <Route path='/leaderboard' element={<Leaderboard/>}></Route>
-      <Route path='/personal' element={<Personal/>}></Route>
-      <Route path='/contact' element={<Contact/>}></Route>
-      <Route path='/create-room' element={<CreateRoom/>}></Route>
-      <Route path='/logout' element={<HomeUA/>}></Route>
-
-     </Routes>
-     </BrowserRouter>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomeUA />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/personal" element={<Personal />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/create-room" element={<CreateRoom />} />
+          <Route path="/join/:roomCode" element={<JoinRoom />} /> {/* Új útvonal a csatlakozáshoz */}
+          <Route path="/logout" element={<HomeUA />} />
+        </Routes>
+      </Router>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
