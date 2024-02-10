@@ -337,6 +337,27 @@ app.post('/forgot-password', (req, res) => {
         });
 });
 
+app.post('/create-room', (req, res) => {
+    // Generálj egy egyedi szoba kódot
+    const roomCode = generateRoomCode();
+
+    // Tegyük elérhetővé a szoba kódot az alkalmazásban
+    rooms[roomCode] = [];
+
+    // Válasz küldése a létrehozott szoba kóddal
+    res.json({ roomCode });
+});
+
+// Generálj egy egyedi szobakódot
+const generateRoomCode = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 7; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+};
+
 const MailSend = (to, subject, text) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',

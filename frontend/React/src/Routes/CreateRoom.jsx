@@ -64,19 +64,22 @@ const CreateRoom = () => {
     const socket = io('https://szakdoga-backend.vercel.app'); // Csere a megfelelő szerver címére és portra
 
     const createRoom = () => {
-        const newRoomCode = generateRoomCode(); // Funkció, ami generál egy egyedi szobakódot
-        setRoomCode(newRoomCode);
-        setInvitationLink(window.location.origin + '/join/' + newRoomCode);
-        socket.emit('createRoom', newRoomCode);
-    };
-
-    const generateRoomCode = () => {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 7; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
+        // Szerveroldali végpont hívása a szoba létrehozásához
+        fetch('https://szakdoga-backend.vercel.app/create-room', {
+            method: 'POST',
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Ha a válasz tartalmazza a szobakódot, beállítjuk és megjelenítjük
+            if (data.roomCode) {
+                setRoomCode(data.roomCode);
+                setInvitationLink(`${window.location.origin}/join/${data.roomCode}`);
+                socket.emit('joinRoom', data.roomCode); // Csatlakozás a létrehozott szobához
+            }
+        })
+        .catch(error => {
+            console.error('Hiba történt a szoba létrehozása közben:', error);
+        });
     };
 
     return (
