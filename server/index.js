@@ -219,33 +219,19 @@ const socketIo = require('socket.io');
 
 require('dotenv').config();
 
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
-}
-
 const app = express();
-
 app.use(express.json());
-app.use(cookieParser());
-
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    next();
-});
-
 app.use(cors({
     origin: "https://szakdoga-zeta.vercel.app",
     methods: ["GET", "POST"],
     credentials: true
 }));
+app.use(cookieParser());
 
-mongoose.connect(process.env.MONGODB);
+mongoose.connect(process.env.MONGODB, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const verifyUser = (req, res, next) => {
     const token = req.cookies.token;
-    console.log(token);
     if (!token) {
         return res.json('Sikertelen bejelentkezés!');
     } else {
@@ -266,7 +252,7 @@ app.get('/logout', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email } = req.body;
 
     UserModel.findOne({ email: email })
         .then(emailFound => {
@@ -274,36 +260,31 @@ app.post('/register', (req, res) => {
                 return res.json('Email cím foglalt');
             } else {
                 UserModel.findOne({ username: username })
-                    .then(usernameFound => {
-                        if (usernameFound) {
+                    .then(pwFound => {
+                        if (pwFound) {
                             return res.json('Felhasználónév foglalt');
                         } else {
                             UserModel.create(req.body)
-                                .then(users => {
-                                    res.json('Felhasználó létrehozva');
-
-                                    // Email küldése a regisztráció megerősítéséhez
-                                    const to = email;
-                                    const subject = `${username}, jó szórakozást kívánunk!`;
-                                    const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${users._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`;
-
+                                .then(user => {
+                                    const to = `${user.email}`;
+                                    const subject = `${user.username}, jó szórakozást kívánunk!`;
+                                    const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`;
                                     MailSend(to, subject, text);
+                                    return res.json('Felhasználó létrehozva');
                                 })
                                 .catch(err => res.json(err));
                         }
                     });
             }
         });
+
 });
 
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-
     UserModel.findOne({ username: username })
         .then(user => {
-            if (!user) {
-                res.json('Nem létezik ilyen fiók!');
-            } else {
+            if (user) {
                 if (user.password === password) {
                     const token = jwt.sign({ username: user.username }, 'langfalvi-david-szakdolgozat', { expiresIn: "1h" });
                     res.cookie("token", token);
@@ -311,52 +292,26 @@ app.post('/login', (req, res) => {
                 } else {
                     res.json('Hibás jelszó!');
                 }
+            } else {
+                res.json('Nem létezik ilyen fiók!');
             }
         });
 });
 
 app.post('/forgot-password', (req, res) => {
     const { email } = req.body;
-
     UserModel.findOne({ email: email })
         .then(user => {
             if (!user) {
                 return res.json('Nincs ilyen felhasználó');
             }
-
             const token = jwt.sign({ id: user._id }, "langfalvi-david-forgot-password", { expiresIn: "1h" });
-
-            // Email küldése az elfelejtett jelszóval
-            const to = user.email;
+            const to = `${user.email}`;
             const subject = 'Elfelejtett jelszó';
             const text = `A jelszava: ${user.password}`;
-
             MailSend(to, subject, text);
-
-            res.json('Jelszó elküldve a regisztrált email címre');
         });
 });
-
-app.post('/create-room', (req, res) => {
-    // Generálj egy egyedi szoba kódot
-    const roomCode = generateRoomCode();
-
-    // Tegyük elérhetővé a szoba kódot az alkalmazásban
-    rooms[roomCode] = [];
-
-    // Válasz küldése a létrehozott szoba kóddal
-    res.json({ roomCode });
-});
-
-// Generálj egy egyedi szobakódot
-const generateRoomCode = () => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < 7; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-};
 
 const MailSend = (to, subject, text) => {
     const transporter = nodemailer.createTransport({
@@ -367,11 +322,11 @@ const MailSend = (to, subject, text) => {
         }
     });
 
-    let mailOptions = {
+    const mailOptions = {
         from: 'Szojatek <szojatek.david.langfalvi@gmail.com>',
         to: to,
         subject: subject,
-        text: text
+        html: text
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -381,34 +336,51 @@ const MailSend = (to, subject, text) => {
             console.log('Email elküldve:', info.response);
         }
     });
-};
+}
 
-const server = http.createServer(app); // Létrehozzuk a HTTP szerver objektumot
-const io = socketIo(server); // Csatlakoztatjuk a socket.io-t a szerverhez
+const server = http.createServer(app);
+const io = socketIo(server);
 
-// Socket.io kapcsolatkezelés
+const rooms = {};
+
 io.on('connection', socket => {
     console.log('Egy új kliens csatlakozott:', socket.id);
 
-    // Kliens csatlakozás a szobához
     socket.on('joinRoom', roomID => {
         socket.join(roomID);
-        console.log(`A kliens csatlakozott a(z) ${roomID} szobához.`);
+        if (!rooms[roomID]) {
+            rooms[roomID] = [];
+        }
+        rooms[roomID].push(socket.id);
+        io.to(roomID).emit('roomPlayers', rooms[roomID]);
     });
 
-    // Egyéb socket.io eseménykezelők
-
+    socket.on('sendInvitation', (roomID, email) => {
+        const invitationLink = `https://szakdoga-zeta.vercel.app/room/${roomID}`;
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD
+            }
+        });
+        const mailOptions = {
+            from: 'Szojatek <szojatek.david.langfalvi@gmail.com>',
+            to: email,
+            subject: 'Meghívó a játékszobába',
+            text: `Kedves játékos! Itt van a meghívó link a játékszobához: ${invitationLink}`
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Hiba történt az email küldése közben:', error);
+            } else {
+                console.log('Az email sikeresen elküldve:', info.response);
+            }
+        });
+    })
 });
 
-app.listen(3000, () => {
-    console.log('Express alkalmazás fut a 3000-es porton...');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
-server.listen(4000, () => {
-    console.log('Socket.io szerver fut a 4000-es porton...');
-});
-
-
-
-
-
