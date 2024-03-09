@@ -46,48 +46,79 @@
 
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import { v4 as uuidv4 } from 'uuid';
-
-const socket = io('https://szakdoga-zeta.vercel.app'); // Csatlakozás a szerverhez (a szerver URL-jével)
 
 const CreateRoom = () => {
-    const [roomName, setRoomName] = useState('');
-    const [rooms, setRooms] = useState([]);
+    const [messages, setMessages] = useState([]);
+    const [inputMessage, setInputMessage] = useState('');
+    const [roomID, setRoomID] = useState('');
+    const [inviteEmail, setInviteEmail] = useState('');
+    const socket = io();
+
+    useEffect(() => {
+        // Eseménykezelő a szerverről érkező üzenetekhez
+        socket.on('message', message => {
+            setMessages(prevMessages => [...prevMessages, message]);
+        });
+
+        // Ha a komponens unmountolódik, zárd be a socket kapcsolatot
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
+
+    // Üzenet küldése a szerver felé
+    const sendMessage = () => {
+        socket.emit('message', inputMessage);
+        setInputMessage('');
+    };
 
     // Szoba létrehozása
     const createRoom = () => {
-        const newRoom = {
-            id: uuidv4(), // Egyedi szoba azonosító
-            name: roomName,
-        };
-        socket.emit('createRoom', newRoom); // Szoba létrehozásának kérése a szerver felé
-        setRooms(prevRooms => [...prevRooms, newRoom]); // Hozzáadás a lokális szobák listájához
-        setRoomName(''); // Input mező törlése
+        socket.emit('createRoom', roomID);
+        setRoomID('');
     };
 
-    // Szobanév beállítása
-    const handleRoomNameChange = (e) => {
-        setRoomName(e.target.value);
+    // Meghívó küldése
+    const sendInvitation = () => {
+        socket.emit('sendInvitation', roomID, inviteEmail);
+        setInviteEmail('');
     };
 
     return (
         <div>
-            <h1>Szoba létrehozása</h1>
-            <input 
-                type="text" 
-                placeholder="Szoba neve" 
-                value={roomName} 
-                onChange={handleRoomNameChange}
-            />
-            <button onClick={createRoom}>Létrehozás</button>
+            <h1>Játékszoba létrehozása és meghívás</h1>
             <div>
-                <h2>Létrehozott szobák</h2>
-                {rooms.map((room) => (
-                    <div key={room.id}>{room.name}</div>
+                <input 
+                    type="text" 
+                    placeholder="Szoba azonosító" 
+                    value={roomID} 
+                    onChange={e => setRoomID(e.target.value)} 
+                />
+                <button onClick={createRoom}>Szoba létrehozása</button>
+            </div>
+            <div>
+                <input 
+                    type="text" 
+                    placeholder="Meghívott email címe" 
+                    value={inviteEmail} 
+                    onChange={e => setInviteEmail(e.target.value)} 
+                />
+                <button onClick={sendInvitation}>Meghívó küldése</button>
+            </div>
+            <h2>Chat</h2>
+            <div>
+                {messages.map((message, index) => (
+                    <div key={index}>{message}</div>
                 ))}
             </div>
+            <input 
+                type="text" 
+                value={inputMessage} 
+                onChange={e => setInputMessage(e.target.value)} 
+            />
+            <button onClick={sendMessage}>Küldés</button>
         </div>
     );
 };
