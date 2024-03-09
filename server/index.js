@@ -219,8 +219,19 @@ const socketIo = require('socket.io');
 
 require('dotenv').config();
 
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 const app = express();
 app.use(express.json());
+
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    next();
+});
 
 app.use(cors({
     origin: "https://szakdoga-zeta.vercel.app",
@@ -231,85 +242,53 @@ app.use(cookieParser());
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-// Authentikáció ellenőrzése
 const verifyUser = (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
-        return res.status(401).json({ message: 'Sikertelen bejelentkezés!' });
+        return res.status(401).send('Sikertelen bejelentkezés!');
     }
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) return res.status(403).json({ message: 'Hibás token!' });
+        if (err) return res.status(403).send('Hibás token!');
         req.user = decoded;
         next();
     });
 };
 
-// Regisztráció
-app.post('/register', async (req, res) => {
-    const { username, email, password } = req.body; // Tegyük fel, hogy a jelszó már hashelve van
+app.get('/', verifyUser, (req, res) => {
+    res.send('Sikeres bejelentkezés!');
+});
 
+app.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.send('Sikeres kijelentkezés');
+});
+
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body; // Feltehetően a jelszó már hashelve
     try {
         let user = await UserModel.findOne({ email: email });
         if (user) {
-            return res.status(400).json({ message: 'Email cím foglalt' });
+            return res.status(400).send('Email cím foglalt');
         }
 
         user = await UserModel.findOne({ username: username });
         if (user) {
-            return res.status(400).json({ message: 'Felhasználónév foglalt' });
+            return res.status(400).send('Felhasználónév foglalt');
         }
 
-        user = new UserModel({ username, email, password });
-        await user.save();
+        const newUser = new UserModel({ username, email, password });
+        await newUser.save();
 
-        // E-mail küldése
-        sendMail(email, 'Sikeres regisztráció', `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`);
+        // Itt kellene az e-mail küldést implementálni, de a korábbi példában hibásan volt használva a 'MailSend' függvény. Javítva:
+        sendMail(email, 'Sikeres regisztráció', `Üdvözlünk a játékban, ${username}! Kérjük, erősítsd meg regisztrációdat a következő linken: https://szakdoga-zeta.vercel.app/verify?${newUser._id}`);
 
-        res.json({ message: 'Felhasználó létrehozva', userId: user._id });
+        res.send('Felhasználó létrehozva és email elküldve.');
     } catch (error) {
-        res.status(500).json({ message: 'Szerver hiba', error: error.message });
+        res.status(500).send('Hiba történt a felhasználó regisztrációja során.');
     }
 });
 
-// További API végpontok...
-
-const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: "https://szakdoga-zeta.vercel.app",
-        methods: ["GET", "POST"]
-    }
-});
-
-const rooms = {}; // Szobák tárolására
-
-io.on('connection', socket => {
-    console.log('Egy új kliens csatlakozott:', socket.id);
-
-    socket.on('createRoom', room => {
-        if (!rooms[room.id]) {
-            rooms[room.id] = { name: room.name, members: [socket.id] };
-            socket.join(room.id);
-            console.log(`Szoba létrehozva: ${room.name} ID: ${room.id}`);
-            socket.emit('roomCreated', room.id);
-        } else {
-            socket.emit('error', 'A szoba már létezik.');
-        }
-    });
-
-    socket.on('sendInvitation', (roomID, email) => {
-        if (rooms[roomID]) {
-            const invitationLink = `https://szakdoga-zeta.vercel.app/room/${roomID}`;
-            sendMail(email, 'Meghívó a játékszobába', `Kedves játékos! Itt van a meghívó link a játékszobához: ${invitationLink}`);
-        } else {
-            socket.emit('error', 'A szoba nem létezik.');
-        }
-    });
-
-    // További eseménykezelők...
-});
-
-// E-mail küldés funkció
+// Implementáljuk a 'sendMail' függvényt a korábbi hibák javításával
 function sendMail(to, subject, html) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -320,7 +299,7 @@ function sendMail(to, subject, html) {
     });
 
     const mailOptions = {
-        from: 'Szojatek <szojatek.david.langfalvi@gmail.com>',
+        from: `Szojatek <${process.env.NODEMAILER_EMAIL}>`,
         to: to,
         subject: subject,
         html: html
@@ -334,6 +313,56 @@ function sendMail(to, subject, html) {
         }
     });
 }
+
+// A WebSocket szerver és a szoba kezelési logika
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "https://szakdoga-zeta.vercel.app",
+        methods: ["GET", "POST"],
+    },
+});
+
+const rooms = {};
+
+io.on('connection', (socket) => {
+    console.log('Egy új kliens csatlakozott:', socket.id);
+
+    socket.on('createRoom', (room) => {
+        const roomId = room.id || socket.id; // Generálj egyedi azonosítót, ha nincs megadva
+        if (!rooms[roomId]) {
+            rooms[roomId] = { name: room.name, members: [socket.id] };
+            socket.join(roomId);
+            console.log(`Szoba létrehozva: ${room.name} ID: ${roomId}`);
+            socket.emit('roomCreated', roomId);
+        } else {
+            socket.emit('error', 'A szoba már létezik.');
+        }
+    });
+
+    socket.on('sendInvitation', ({ roomID, email }) => {
+        if (rooms[roomID]) {
+            const invitationLink = `https://szakdoga-zeta.vercel.app/room/${roomID}`;
+            sendMail(email, 'Meghívó a játékszobába', `Kedves játékos! Itt van a meghívó link a játékszobához: ${invitationLink}`);
+            socket.emit('invitationSent', email);
+        } else {
+            socket.emit('error', 'A szoba nem létezik.');
+        }
+    });
+
+    // Kliens szoba elhagyása
+    socket.on('leaveRoom', (roomId) => {
+        socket.leave(roomId);
+        console.log(`${socket.id} elhagyta a szobát: ${roomId}`);
+        // Opcionálisan távolítsd el a klienst a szoba tagjai közül
+    });
+
+    // Üzenet küldése a szobában lévő összes tag számára
+    socket.on('sendMessageToRoom', ({ roomId, message }) => {
+        io.to(roomId).emit('receiveMessage', message);
+    });
+});
+
 
 server.listen(3000, () => {
     console.log('Server is running on port 3000');
