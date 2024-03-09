@@ -56,35 +56,34 @@ app.get('/logout', (req,res) =>{
     return res.json('Sikeres kijelentkezés')
 })
 
-app.post('/register', (req, res) =>{
-    const {username, email} = req.body
+app.post('/register', (req, res) => {
+    const { username, email } = req.body;
 
-    UserModel.findOne({email: email})
-    .then(emailFound =>{
-        if(emailFound){
-            return res.json('Email cím foglalt')
-        } else{
-            UserModel.findOne({username: username})
-            .then(pwFound =>{
-                if(pwFound){
-                    return res.json('Felhasználónév foglalt')
-                } else{
-                    UserModel.create(req.body)
-                    .then(users => res.json(users))
-                    .catch(err => res.json(err))
+    UserModel.findOne({ email: email })
+        .then(emailFound => {
+            if (emailFound) {
+                return res.json('Email cím foglalt');
+            } else {
+                UserModel.findOne({ username: username })
+                    .then(pwFound => {
+                        if (pwFound) {
+                            return res.json('Felhasználónév foglalt');
+                        } else {
+                            UserModel.create(req.body)
+                                .then(user => {
+                                    const to = user.email;
+                                    const subject = `${user.username}, jó szórakozást kívánunk!`;
+                                    const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`;
+                                    MailSend(to, subject, text);
+                                    res.json('Felhasználó létrehozva');
+                                })
+                                .catch(err => res.json(err));
+                        }
+                    })
+            }
+        })
+});
 
-                    const to = `${user.email}`
-                    const subject = `${user.username}, jó szórakozást kívánunk!`
-                    const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`
-
-                    MailSend()
-                    return res.json('Felhasználó létrehozva')
-                }
-            })
-        }
-    })
-    
-})
 
 app.post('/login', (req, res) =>{
     const {username, password} = req.body
