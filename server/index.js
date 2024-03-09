@@ -279,21 +279,22 @@ app.post('/register', (req, res) =>{
                     return res.json('Felhasználónév foglalt');
                 } else{
                     UserModel.create(req.body)
-                    .then(users => res.json(users))
+                    .then(users => {
+                        // Sikeres létrehozás esetén küldd vissza a megfelelő választ
+                        res.setHeader('Access-Control-Allow-Origin', 'https://szakdoga-zeta.vercel.app');
+                        return res.json(users);
+                    })
                     .catch(err => res.json(err));
 
-                    const to = `${user.email}`;
-                    const subject = `${user.username}, jó szórakozást kívánunk!`;
-                    const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`;
-
-                    MailSend(to, subject, text);
-                    return res.json('Felhasználó létrehozva');
+                    // További kód
                 }
             });
         }
-    });
-    
+    });  
 });
+
+    
+
 
 app.post('/login', (req, res) =>{
     const {username, password} = req.body;
