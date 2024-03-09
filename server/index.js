@@ -286,7 +286,7 @@ app.post('/register', (req, res) =>{
                     const subject = `${user.username}, jó szórakozást kívánunk!`;
                     const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`;
 
-                    MailSend();
+                    MailSend(to, subject, text);
                     return res.json('Felhasználó létrehozva');
                 }
             });
