@@ -14,22 +14,28 @@ const Register = () => {
 
 axios.defaults.withCredentials = true
     
-    const handleSubmit = (e) =>{
-        e.preventDefault()
-        if(password !== password2) return null
-        axios.post('https://szakdoga-backend.vercel.app/register', {email, username, password})
-        .then(res => {
-            console.log(res)
-            if(res.data === 'Felhasználó létrehozva'){
-                setTimeout(() =>{
-                    window.location.href = '/login';
-                },3000)
-            } else{
-                return res.data
-            }
-        })
-        .catch(err => console.log(err))
+const handleSubmit = (e) =>{
+    e.preventDefault()
+    const form = e.currentTarget;
+    if (form.checkValidity() === false) {
+        e.stopPropagation();
+        form.classList.add('was-validated');
+        return;
     }
+    if(password !== password2) return;
+    axios.post('https://szakdoga-backend.vercel.app/register', {email, username, password})
+    .then(res => {
+        console.log(res);
+        if(res.data === 'Felhasználó létrehozva'){
+            setTimeout(() =>{
+                window.location.href = '/login';
+            },3000)
+        } else{
+            setErrorMsg(res.data);
+        }
+    })
+    .catch(err => console.log(err))
+}
 
         return (
             <div style={{backgroundImage : "linear-gradient(to left bottom, #11b6f0, #00c1ea, #00cad5, #00d1b5, #08d48d)"}}>
