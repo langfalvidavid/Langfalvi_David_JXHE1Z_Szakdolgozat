@@ -263,52 +263,65 @@ app.get('/logout', (req,res) =>{
     return res.json('Sikeres kijelentkezés')
 })
 
-app.post('/register', (req, res) =>{
-    const {username, email} = req.body
+// Regisztráció során a jelszó hashelése
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
 
-    UserModel.findOne({email: email})
-    .then(emailFound =>{
-        if(emailFound){
-            return res.json('Email cím foglalt')
-        } else{
-            UserModel.findOne({username: username})
-            .then(pwFound =>{
-                if(pwFound){
-                    return res.json('Felhasználónév foglalt')
-                } else{
-                    UserModel.create(req.body)
-                    .then(users => res.json(users))
-                    .catch(err => res.json(err))
-
-                    const to = `${user.email}`
-                    const subject = `${user.username}, jó szórakozást kívánunk!`
-                    const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`
-
-                    MailSend()
-                    return res.json('Felhasználó létrehozva')
-                }
-            })
+    try {
+        let user = await UserModel.findOne({ email });
+        if (user) {
+            return res.status(400).json({ message: 'Email cím foglalt.' });
         }
-    })
-    
-})
 
-app.post('/login', (req, res) =>{
-    const {username, password} = req.body
-    UserModel.findOne({username: username})
-    .then(user =>{
-        if(user){
-        if(user.password === password) {
-            const token = jwt.sign({username: user.username}, 'langfalvi-david-szakdolgozat', {expiresIn:"1h"})
-            res.cookie("token", token)
-            res.json('Sikeres bejelentkezés!')
-        } else{
-            res.json('Hibás jelszó!')
-        }} else{
-            res.json('Nem létezik ilyen fiók!')
+        user = await UserModel.findOne({ username });
+        if (user) {
+            return res.status(400).json({ message: 'Felhasználónév foglalt.' });
         }
-    })
-})
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new UserModel({
+            username,
+            email,
+            password: hashedPassword,
+        });
+
+        await newUser.save();
+
+        const to = `${user.email}`
+        const subject = `${user.username}, jó szórakozást kívánunk!`
+        const text = `<a href="https://szakdoga-zeta.vercel.app/verify?${user._id}">Kattints erre a linkre a regisztrációd megerősítéséhez!</a>`
+        
+        MailSend(to, subject, text)
+
+        res.status(201).json({ message: 'Felhasználó létrehozva.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Szerver hiba.' });
+    }
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const user = await UserModel.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: 'Nem létezik ilyen fiók.' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Hibás jelszó.' });
+        }
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.cookie('token', token, { httpOnly: true });
+
+        res.json({ message: 'Sikeres bejelentkezés!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Szerver hiba.' });
+    }
+});
 
 app.post('/forgot-password', (req, res) =>{
     const {email} = req.body
