@@ -18,10 +18,11 @@ axios.defaults.withCredentials = true
         e.preventDefault()
         if(password !== password2) return null
         axios.post('https://szakdoga-backend.vercel.app/register', {email, username, password})
-        .then(res => {console.log(res)
+        .then(res => {
+            console.log(res)
             if(res.data === 'Felhasználó létrehozva'){
                 setTimeout(() =>{
-                    navigate('/login')
+                    window.location.href = '/login';
                 },3000)
             } else{
                 return res.data
